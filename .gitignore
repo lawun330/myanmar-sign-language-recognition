@@ -1,0 +1,9 @@
+# cache
+__pycache__/
+.ipynb_checkpoints/
+
+# logs
+*.log
+
+# large files
+data/videos/
