@@ -102,7 +102,7 @@ def parse_annotation_file(ann_path: str) -> List[Dict]:
                 'idx':         line_no,
                 'normal_text': normal_text,
                 'msl_gloss':   msl_gloss,
-                'label':       normal_text,   # class = full Myanmar phrase
+                'label':       msl_gloss,   # -- MODIFIED HERE --
             })
 
     logging.info(f"Parsed {len(records)} annotation entries from {ann_path}")

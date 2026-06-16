@@ -8,6 +8,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${ROOT_DIR}"
+
 # ── USER SETTINGS ─────────────────────────────────────────────────────────────
 DATA_DIR="data"
 VIDEO_DIR="${DATA_DIR}/videos"
@@ -65,5 +69,5 @@ echo " Outputs:"
 echo "   data/label_map.json   ← class vocab"
 echo "   data/splits.json      ← train/val/test indices"
 echo "   data/kfold_splits.json← 5-fold CV splits"
-echo " Next: run 02_extract_keypoints.sh"
+echo " Next: run scripts/02_extract_keypoints.sh"
 echo "============================================================"
