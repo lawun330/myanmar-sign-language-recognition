@@ -10,12 +10,17 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${ROOT_DIR}"
+
 MODEL="${1:-bilstm}"
 EXP="${2:-exp_${MODEL}}"
 EXTRA_ARGS="${3:-}"
 CONFIG="config/config.yaml"
 LOG_DIR="results/${EXP}/logs"
 AUG_MANIFEST="data/augmented/augmented_manifest.json"
+USE_WANDB=$(python3 -c "import yaml; c=yaml.safe_load(open('${CONFIG}')); print('yes' if c.get('logging',{}).get('wandb',{}).get('enabled') else 'no')")
 
 mkdir -p "${LOG_DIR}"
 
@@ -25,6 +30,7 @@ echo "============================================================"
 echo " Model      : ${MODEL}"
 echo " Experiment : ${EXP}"
 echo " Config     : ${CONFIG}"
+echo " W&B        : ${USE_WANDB}"
 echo ""
 
 # Verify prerequisites

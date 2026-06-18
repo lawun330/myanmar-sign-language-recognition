@@ -9,6 +9,7 @@ Features
   - Early stopping with patience
   - Cosine / Step / Plateau LR scheduler
   - TensorBoard logging
+  - Weights & Biases logging (optional)
   - Label smoothing
   - Class-weighted loss for imbalanced data
   - Top-k checkpoint saving
@@ -44,6 +45,7 @@ from utils   import (
     parse_annotation_file, build_label_vocabulary,
     match_videos_to_annotations, load_splits,
     save_label_map, save_checkpoint, compute_class_weights,
+    wandb_is_enabled, init_wandb, log_wandb_metrics, finish_wandb,
 )
 from augment import RandomAugmentor
 
@@ -186,6 +188,8 @@ def train(args):
     dcfg = cfg['data']
     set_seed(tcfg['seed'])
 
+    cfg.setdefault('logging', {}).setdefault('wandb', {})['enabled'] = wandb_is_enabled(cfg, args)
+
     # Experiment directories
     exp_dir  = Path('results') / args.exp
     ckpt_dir = exp_dir / 'checkpoints'
@@ -324,6 +328,17 @@ def train(args):
     # ── TensorBoard ───────────────────────────────────────────────────────────
     writer = SummaryWriter(log_dir=str(log_dir)) if cfg['logging']['use_tensorboard'] else None
 
+    # ── Weights & Biases ──────────────────────────────────────────────────────
+    wandb_run = init_wandb(
+        cfg,
+        run_name = args.exp,
+        model    = args.model,
+        exp      = args.exp,
+        tags     = [args.model],
+    )
+    if wandb_run:
+        logger.info("Weights & Biases logging enabled")
+
     # ── Training loop ─────────────────────────────────────────────────────────
     # Start at -1 so the very first epoch always triggers a checkpoint save,
     # even when val accuracy is 0%.  Without this, a model that never exceeds
@@ -370,6 +385,16 @@ def train(args):
             writer.add_scalar('Acc/val_top1',   val_metrics['top1'],   epoch)
             writer.add_scalar('Acc/val_top5',   val_metrics['top5'],   epoch)
             writer.add_scalar('LR', lr, epoch)
+
+        log_wandb_metrics(wandb_run, {
+            'Loss/train':     train_metrics['loss'],
+            'Loss/val':       val_metrics['loss'],
+            'Acc/train_top1': train_metrics['top1'] * 100,
+            'Acc/val_top1':   val_metrics['top1']   * 100,
+            'Acc/val_top5':   val_metrics['top5']   * 100,
+            'LR':             lr,
+            'epoch_time_s':   dur,
+        }, step=epoch)
 
         history.append({
             'epoch': epoch,
@@ -423,6 +448,8 @@ def train(args):
     if writer:
         writer.close()
 
+    finish_wandb(wandb_run, summary={'best_val_top1': best_val_top1 * 100})
+
     logger.info(f"Training complete. Best val top-1: {best_val_top1*100:.2f}%")
     logger.info(f"Best checkpoint: {ckpt_dir / 'best.pth'}")
     return best_val_top1
@@ -439,6 +466,10 @@ def main():
                         help='Experiment name (results saved under results/<exp>/)')
     parser.add_argument('--weighted_loss', action='store_true',
                         help='Use inverse-frequency class weights in loss')
+    parser.add_argument('--wandb', action='store_true',
+                        help='Enable Weights & Biases logging')
+    parser.add_argument('--no_wandb', action='store_true',
+                        help='Disable Weights & Biases logging')
     args = parser.parse_args()
     train(args)
 

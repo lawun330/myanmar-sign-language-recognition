@@ -19,7 +19,7 @@ import logging
 import hashlib
 from pathlib import Path
 from collections import Counter
-from typing import Dict, List, Tuple, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -60,6 +60,79 @@ def set_seed(seed: int = 42):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+
+# ─── Weights & Biases ─────────────────────────────────────────────────────────
+
+def wandb_is_enabled(cfg: dict, args=None) -> bool:
+    """Return True when wandb logging is turned on via config or CLI."""
+    wcfg    = cfg.get('logging', {}).get('wandb', {})
+    enabled = bool(wcfg.get('enabled', False))
+    if args is not None:
+        if getattr(args, 'wandb', False):
+            enabled = True
+        if getattr(args, 'no_wandb', False):
+            enabled = False
+    return enabled
+
+
+def init_wandb(
+    cfg: dict,
+    *,
+    run_name: str,
+    model: str,
+    exp: str,
+    group: Optional[str] = None,
+    job_type: str = 'train',
+    tags: Optional[List[str]] = None,
+) -> Any:
+    """Start a wandb run. Returns the run object, or None if disabled/unavailable."""
+    wcfg = cfg.get('logging', {}).get('wandb', {})
+    if not wcfg.get('enabled', False):
+        return None
+
+    try:
+        import wandb
+    except ImportError:
+        logging.warning("wandb not installed — run: pip install wandb")
+        return None
+
+    init_kwargs = {
+        'project':  wcfg.get('project', 'msl-recognition'),
+        'name':     run_name,
+        'config':   cfg,
+        'tags':     list(tags or wcfg.get('tags') or []),
+        'job_type': job_type,
+    }
+    if wcfg.get('entity'):
+        init_kwargs['entity'] = wcfg['entity']
+    if wcfg.get('notes'):
+        init_kwargs['notes'] = wcfg['notes']
+    if group:
+        init_kwargs['group'] = group
+
+    run = wandb.init(**init_kwargs)
+    wandb.config.update({'model_type': model, 'exp_name': exp})
+    return run
+
+
+def log_wandb_metrics(run, metrics: dict, step: int) -> None:
+    """Log scalar metrics to an active wandb run."""
+    if run is None:
+        return
+    import wandb
+    wandb.log(metrics, step=step)
+
+
+def finish_wandb(run, summary: Optional[dict] = None) -> None:
+    """Finish wandb run and optionally write summary scalars."""
+    if run is None:
+        return
+    import wandb
+    if summary:
+        for key, value in summary.items():
+            wandb.summary[key] = value
+    wandb.finish()
 
 
 # ─── Annotation Parsing ───────────────────────────────────────────────────────
