@@ -1,16 +1,17 @@
-# Myanmar Sign Language Recognition — pinned to lu_msl_recognition_env
-# Python 3.12.13
-#
-# Install (local GPU, CUDA 12.6 wheels — matches current env):
-#   pip install -r requirements.txt
+# Myanmar Sign Language Recognition
+# Python 3.12.x
 
---extra-index-url https://download.pytorch.org/whl/cu126
+# Core deep learning
+## For Nvidia GeForce GTX 1060 which uses CUDA 12.6 wheels
+#torch==2.12.0+cu126
+#torchvision==0.27.0+cu126
+#--index-url https://download.pytorch.org/whl/cu126
+## For Google Collab which uses CUDA 12.8 wheels
+#torch==2.11.0+cu128
+#torchvision==0.26.0+cu128
+#--index-url https://download.pytorch.org/whl/cu128
 
-# Core deep learning (for Nvidia GeForce GTX 1060)
-torch==2.12.0+cu126
-torchvision==0.27.0+cu126
-
-# MediaPipe keypoint extraction (do not upgrade to >=0.10.30 for current setup)
+# MediaPipe keypoint extraction (do not upgrade to >=0.10.30 for current scripts)
 mediapipe==0.10.18
 
 # Computer vision (mediapipe 0.10.18 also pulls opencv-contrib-python==4.11.0.86)
