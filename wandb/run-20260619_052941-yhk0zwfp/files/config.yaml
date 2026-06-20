@@ -1,0 +1,196 @@
+_wandb:
+    value:
+        cli_version: 0.27.2
+        e:
+            i9qm8h8gw87l9qy03wse2ykw5ldczp3w:
+                args:
+                    - --config
+                    - config/config.yaml
+                    - --model
+                    - stgcn
+                    - --exp
+                    - exp_stgcn
+                    - --weighted_loss
+                codePath: src/train.py
+                codePathLocal: src/train.py
+                cpu_count: 6
+                cpu_count_logical: 12
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "501809635328"
+                        used: "308954591232"
+                email: lawun330@gmail.com
+                executable: /home/lawun330/anaconda3/envs/lu_msl_recognition_env/bin/python
+                git:
+                    commit: eca0fc4bd064795f52e0bf9aa7418a2c171eabfe
+                    remote: git@github.com:lawun330/myanmar-sign-language-recognition.git
+                gpu: NVIDIA GeForce GTX 1060
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Pascal
+                      cudaCores: 1280
+                      memoryTotal: "6442450944"
+                      name: NVIDIA GeForce GTX 1060
+                      uuid: GPU-a7b06665-b006-f2a7-1627-b3b8111918d6
+                host: ROG-Strix-Hero-II
+                memory:
+                    total: "8166899712"
+                os: Linux-6.17.0-35-generic-x86_64-with-glibc2.39
+                program: /home/lawun330/Desktop/myanmar-sign-language-recognition/src/train.py
+                python: CPython 3.12.13
+                root: /home/lawun330/Desktop/myanmar-sign-language-recognition
+                startedAt: "2026-06-18T22:29:41.689103Z"
+                writerId: i9qm8h8gw87l9qy03wse2ykw5ldczp3w
+        m: []
+        python_version: 3.12.13
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 13
+                - 15
+                - 16
+                - 61
+                - 62
+            "4": 3.12.13
+            "5": 0.27.2
+            "12": 0.27.2
+            "13": linux-x86_64
+augmentation:
+    value:
+        aug_factor: 20
+        enabled: true
+        frame_dropout:
+            max_drop_ratio: 0.1
+            prob: 0.4
+        gaussian_noise:
+            prob: 0.7
+            std: 0.008
+        horizontal_flip:
+            prob: 0.5
+        joint_mask:
+            max_mask_ratio: 0.1
+            prob: 0.3
+        save_format: npy
+        scale_jitter:
+            max_scale: 1.15
+            min_scale: 0.85
+            prob: 0.4
+        spatial_rotate:
+            max_angle: 12
+            prob: 0.5
+        speed_perturbation:
+            max_factor: 1.35
+            min_factor: 0.75
+            prob: 0.6
+        temporal_shift:
+            max_shift: 5
+            prob: 0.3
+        time_warp:
+            knot: 4
+            prob: 0.6
+            sigma: 0.15
+data:
+    value:
+        annotation_file: data/annotations.txt
+        augmented_dir: data/augmented
+        coord_dim: 3
+        feature_dim: 225
+        hand_landmarks: 21
+        keypoint_dir: data/keypoints
+        label_map_file: data/label_map.json
+        max_seq_len: 200
+        min_seq_len: 5
+        n_folds: 5
+        num_nodes: 75
+        pose_landmarks: 33
+        seed: 42
+        split_file: data/splits.json
+        test_ratio: 0.15
+        val_ratio: 0.15
+        video_dir: data/videos
+evaluation:
+    value:
+        metrics:
+            - accuracy_top1
+            - accuracy_top5
+            - precision_macro
+            - recall_macro
+            - f1_macro
+            - confusion_matrix
+        output_dir: results
+        plot_confusion_matrix: true
+        save_predictions: true
+exp_name:
+    value: exp_stgcn
+logging:
+    value:
+        log_dir: results/logs
+        log_interval: 10
+        use_tensorboard: true
+        wandb:
+            enabled: true
+            entity: null
+            notes: ""
+            project: msl-recognition
+            tags:
+                - msl
+                - emergency
+model:
+    value:
+        bilstm:
+            attention_type: additive
+            bidirectional: true
+            dropout: 0.4
+            hidden_dim: 256
+            input_dim: 225
+            num_layers: 3
+            use_attention: true
+        stgcn:
+            dropout: 0.3
+            edge_importance_weighting: true
+            graph_cfg:
+                layout: msl_holistic
+                strategy: spatial
+            in_channels: 3
+            num_nodes: 75
+            temporal_kernel_size: 9
+        transformer:
+            d_model: 256
+            dim_feedforward: 1024
+            dropout: 0.1
+            input_dim: 225
+            max_seq_len: 210
+            nhead: 8
+            num_encoder_layers: 4
+            use_cls_token: true
+model_type:
+    value: stgcn
+training:
+    value:
+        batch_size: 32
+        cosine_T_max: 150
+        cosine_eta_min: 5e-06
+        focal_gamma: 2
+        grad_clip: 1
+        label_smoothing: 0.1
+        learning_rate: 0.0005
+        loss: cross_entropy
+        num_epochs: 150
+        num_workers: 8
+        patience: 25
+        pin_memory: true
+        save_top_k: 3
+        scheduler: cosine
+        seed: 42
+        use_amp: true
+        warmup_epochs: 10
+        weight_decay: 0.0001

@@ -12,10 +12,13 @@ set -euo pipefail
 
 MODE="${1:-video}"         # video | webcam | batch
 INPUT="${2:-}"
-MODEL="bilstm"             # edit to match your best experiment
-EXP="exp_bilstm"        # edit to match your best experiment
-#EXP="exp_transformer"
-#EXP="exp_stgcn"
+MODEL="bilstm"           # edit to match your best experiment
+EXP="exp_bilstm"         # edit to match your best experiment
+# MODEL="transformer"
+# EXP="exp_transformer"
+# MODEL="stgcn"
+# EXP="exp_stgcn"
+VERSION="v1"               # edit to match your best experiment
 CHECKPOINT="results/${EXP}/checkpoints/best.pth"
 CONFIG="config/config.yaml"
 TOP_K=5
@@ -60,7 +63,7 @@ case "${MODE}" in
             echo "[ERROR] Provide a directory: bash scripts/08_infer.sh batch path/to/dir/"
             exit 1
         fi
-        OUTPUT="results/inference_$(basename ${INPUT}).csv"
+        OUTPUT="results/inference_$(basename ${INPUT})_${MODEL}_${VERSION}.csv"
         python src/infer.py \
             --checkpoint "${CHECKPOINT}" \
             --config     "${CONFIG}" \
