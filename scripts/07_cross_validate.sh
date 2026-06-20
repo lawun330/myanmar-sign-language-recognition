@@ -13,11 +13,17 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${ROOT_DIR}"
+
 MODEL="${1:-bilstm}"
 EXP="${2:-cv_${MODEL}}"
 FOLDS="${3:-5}"
+EXTRA_ARGS="${4:-}"
 CONFIG="config/config.yaml"
 AUG_MANIFEST="data/augmented/augmented_manifest.json"
+USE_WANDB=$(python3 -c "import yaml; c=yaml.safe_load(open('${CONFIG}')); print('yes' if c.get('logging',{}).get('wandb',{}).get('enabled') else 'no')")
 
 echo "============================================================"
 echo " K-Fold Cross-Validation"
@@ -25,6 +31,7 @@ echo "============================================================"
 echo " Model  : ${MODEL}"
 echo " Exp    : ${EXP}"
 echo " Folds  : ${FOLDS}"
+echo " W&B    : ${USE_WANDB}"
 echo ""
 
 # ── Prerequisites ─────────────────────────────────────────────────────────────
@@ -64,6 +71,7 @@ python src/cross_validate.py \
     --model  "${MODEL}" \
     --exp    "${EXP}" \
     --folds  "${FOLDS}" \
+    ${EXTRA_ARGS} \
     2>&1 | tee "results/${EXP}/cv.log"
 
 echo ""

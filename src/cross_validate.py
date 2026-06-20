@@ -51,6 +51,7 @@ from models  import build_model
 from utils   import (
     get_logger, set_seed, get_device,
     load_label_map, compute_class_weights, save_checkpoint,
+    wandb_is_enabled, init_wandb, log_wandb_metrics, finish_wandb,
 )
 from train   import train_one_epoch, validate, FocalLoss
 
@@ -65,6 +66,7 @@ def run_fold(
     label2idx:  dict,
     cfg:        dict,
     model_type: str,
+    exp_name:   str,
     exp_dir:    Path,
     device:     torch.device,
     logger,
@@ -126,6 +128,18 @@ def run_fold(
     )
     scaler = GradScaler('cuda', enabled=tcfg['use_amp'])
 
+    wandb_run = init_wandb(
+        cfg,
+        run_name = f'{exp_name}_fold{fold_idx:02d}',
+        model    = model_type,
+        exp      = exp_name,
+        group    = exp_name,
+        job_type = 'cross_validate',
+        tags     = [model_type, f'fold_{fold_idx}'],
+    )
+    if wandb_run:
+        logger.info(f'Fold {fold_idx}: Weights & Biases logging enabled')
+
     # Start at -1 so epoch 1 always writes a checkpoint even at 0% accuracy
     best_val_top1  = -1.0
     patience_count = 0
@@ -138,6 +152,19 @@ def run_fold(
                                         scaler, device, cfg, logger)
         val_metrics   = validate(model, val_loader, criterion, device, cfg)
         scheduler.step()
+
+        lr  = optimizer.param_groups[0]['lr']
+        dur = time.time() - t0
+
+        log_wandb_metrics(wandb_run, {
+            'Loss/train':     train_metrics['loss'],
+            'Loss/val':       val_metrics['loss'],
+            'Acc/train_top1': train_metrics['top1'] * 100,
+            'Acc/val_top1':   val_metrics['top1']   * 100,
+            'Acc/val_top5':   val_metrics['top5']   * 100,
+            'LR':             lr,
+            'epoch_time_s':   dur,
+        }, step=epoch)
 
         history.append({
             'epoch': epoch,
@@ -187,6 +214,11 @@ def run_fold(
         f"test={test_metrics['top1']*100:.2f}%"
     )
 
+    finish_wandb(wandb_run, summary={
+        'best_val_top1': best_val_top1 * 100,
+        'test_top1':     test_metrics['top1'] * 100,
+    })
+
     return {
         'fold':          fold_idx,
         'best_val_top1': best_val_top1,
@@ -210,6 +242,10 @@ def main():
     parser.add_argument('--folds',      type=int, default=None)
     parser.add_argument('--fold_start', type=int, default=0,
                         help='Resume from this fold index')
+    parser.add_argument('--wandb', action='store_true',
+                        help='Enable Weights & Biases logging')
+    parser.add_argument('--no_wandb', action='store_true',
+                        help='Disable Weights & Biases logging')
     args = parser.parse_args()
 
     with open(args.config) as f:
@@ -218,8 +254,13 @@ def main():
     dcfg    = cfg['data']
     set_seed(cfg['training']['seed'])
 
+    cfg.setdefault('logging', {}).setdefault('wandb', {})['enabled'] = wandb_is_enabled(cfg, args)
+
     exp_dir = Path('results') / args.exp
     exp_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(exp_dir / 'config_used.yaml', 'w') as f:
+        yaml.dump(cfg, f)
 
     logger = get_logger('cross_validate', log_file=str(exp_dir / 'cv.log'))
     device = get_device()
@@ -292,6 +333,7 @@ def main():
             label2idx  = label2idx,
             cfg        = cfg,
             model_type = args.model,
+            exp_name   = args.exp,
             exp_dir    = exp_dir,
             device     = device,
             logger     = logger,
