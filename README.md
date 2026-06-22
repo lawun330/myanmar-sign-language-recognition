@@ -23,9 +23,9 @@ This project implements a MSL recognition system for emergency cases.
 ## Experiments
 
 1. **Exp-1** (mslr_v1): Sayar's default configuration
-2. **Exp-2** (mslr_v2): Use K-fold cross-validation
+2. **Exp-2** (mslr_v2): Use K-fold cross-validation (K=5)
 
-Wandb: https://wandb.ai/lawun330-/msl-recognition?nw=nwuserlawun330
+Wandb: [project](https://wandb.ai/lawun330-/msl-recognition?nw=nwuserlawun330)
 
 Summary: [presentation slides](presentation_slides.pdf)
 
@@ -63,7 +63,10 @@ Results:
 └── results/
     ├── exp_bilstm
     ├── exp_transformer
-    └── exp_stgcn
+    ├── exp_stgcn
+    ├── exp_cv_bilstm
+    ├── exp_cv_transformer
+    └── exp_cv_stgcn
 ```
 
 ## References

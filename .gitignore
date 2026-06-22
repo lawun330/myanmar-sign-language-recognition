@@ -12,3 +12,6 @@ data/augmented/
 # results
 checkpoints/
 wandb/latest-run
+
+# models
+*.pth
