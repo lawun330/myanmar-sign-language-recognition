@@ -1,0 +1,8 @@
+{
+  "model_type": "transformer",
+  "num_classes": 541,
+  "max_seq_len": 200,
+  "feat_dim": 225,
+  "num_joints": 75,
+  "num_coords": 3
+}

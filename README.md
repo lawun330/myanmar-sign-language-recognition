@@ -38,8 +38,6 @@ This project implements a MSL recognition system for emergency cases.
 1. **Exp-1** ([mslr_full_train_v1](notebooks/mslr_full_train_v1.ipynb)): Sayar's default configuration
 2. **Exp-2** ([mslr_5cv_v1](notebooks/mslr_5cv_v1.ipynb)): Use K-fold cross-validation (K=5)
 
-Wandb: [project](https://wandb.ai/lawun330-/msl-recognition?nw=nwuserlawun330)
-
 Summary: [presentation slides](presentation_slides.pdf)
 
 Results:
@@ -87,6 +85,7 @@ Results:
 
 - [Hugging Face Models](https://huggingface.co/lawun330/myanmar-sign-language-recognition)
 - [Kaggle Datasets](https://www.kaggle.com/datasets/lawunnannda/msl4emergency-dataset-augmented-keypoints)
+- [Wandb](https://wandb.ai/lawun330-/msl-recognition?nw=nwuserlawun330)
 
 ## References
 
