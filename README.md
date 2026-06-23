@@ -6,24 +6,37 @@ This project implements a MSL recognition system for emergency cases.
 
 ## Error-Free Workflow
 
-- Always create a new virtual environment.
-- Install PyTorch manually.
-- Use `requirements.txt` to install the remaining libraries.
 - When using **Google Colab**:
-    - During setup, dependency conflicts may occur due to different protobuf versions required by MediaPipe, TorchMetrics, Weights & Biases (W&B), and pre-installed Colab libraries.
+    - During setup, dependency conflicts may occur due to different protobuf versions required by MediaPipe, TorchMetrics, W&B, and pre-installed Colab libraries.
+        - Switching MediaPipe versions will not fix this as newer releases introduce breaking API changes that cause runtime errors in this codebase.
     - Extracting keypoints may cause the free-tier GPU runtime to become unavailable.
-    - This issue can be avoided by extracting keypoints using a CPU runtime.
-    - Once the keypoints have been generated, switch to a GPU runtime for training or inference.
-    - Note that switching runtimes resets the session and deletes any extracted keypoints stored in the runtime's temporary disk space. Therefore, save all extracted keypoints to Google Drive before changing runtimes.
-- When using a **local GPU**,
+        - Extracting keypoints using a CPU runtime fix this.
+        - Once the keypoints have been generated, switch to a GPU runtime for training or inference.
+    - Note that switching runtimes resets the session and **deletes** any extracted keypoints stored in the runtime's temporary disk space. Therefore, save all extracted keypoints to Google Drive before changing runtimes.
+    - The free-tier GPU quota resets **daily** and is shared across your Colab usage.
+- When using a **local GPU**:
     - The Google Colab-specific issues described above do not apply.
     - Training time can range from a few hours to several days with limited GPU resources.
-- It is recommended to prepare the data locally, including keypoint extraction and data augmentation. Google Colab should be used primarily for training, evaluation, and inference.
+- When using **Kaggle**:
+    - Note that switching runtimes resets the session, but **does not delete** any files stored in the runtime's temporary disk space.
+    - The free-tier GPU quota resets **weekly**, with up to 30 hours of GPU time available.
+- **Recommendation**:
+    - Set up a virtual environment (venv) conditionally:
+        - When?
+            - **local GPU**: always set up venv.
+            - **Google Colab / Kaggle**:
+                - Do everything (extract keypoints, train, evaluate, and inference on cloud) $\rightarrow$ always set up venv because cloud runtimes hit protobuf and other dependency conflicts with MediaPipe, TorchMetrics, and W&B.
+                - Only train and evaluate (extract keypoints locally, train and evaluate on cloud, inference locally) $\rightarrow$ no venv required.
+        - How?
+            - Install PyTorch manually.
+            - Use `requirements.txt` to install the remaining libraries.
+    - Prepare data locally (keypoint extraction, augmentation, and inference).
+    - Use Kaggle rather than Colab for training and evaluation because Kaggle's weekly GPU quota (up to 30 hours) is more generous than Colab's daily limit.
 
 ## Experiments
 
-1. **Exp-1** (mslr_v1): Sayar's default configuration
-2. **Exp-2** (mslr_v2): Use K-fold cross-validation (K=5)
+1. **Exp-1** ([mslr_full_train_v1](notebooks/mslr_full_train_v1.ipynb)): Sayar's default configuration
+2. **Exp-2** ([mslr_5cv_v1](notebooks/mslr_5cv_v1.ipynb)): Use K-fold cross-validation (K=5)
 
 Wandb: [project](https://wandb.ai/lawun330-/msl-recognition?nw=nwuserlawun330)
 
@@ -31,13 +44,14 @@ Summary: [presentation slides](presentation_slides.pdf)
 
 Results:
 
-| Exp-1 on Validation Data | Exp-1 on Test Data |
+| Eval on Validation Data | Eval on Test Data |
 |:-------------:|:-----------:|
 | ![](results/comparison_val.png) | ![](results/comparison_test.png) |
 
-| Exp-2 on Validation Data | Exp-2 on Test Data |
-|:-------------:|:-----------:|
-| ![](results/.png) | ![](results/.png) |
+
+| 5-fold CV BiLSTM | 5-fold CV Transformer | 5-fold CV ST-GCN |
+|:-------------:|:-----------:|:-----------:|
+| ![](results/exp_cv_bilstm/cv_distribution.png) | ![](results/exp_cv_transformer/cv_distribution.png) | ![](results/exp_cv_stgcn/cv_distribution.png) |
 
 ## Dataset
 
@@ -68,6 +82,11 @@ Results:
     ├── exp_cv_transformer
     └── exp_cv_stgcn
 ```
+
+## External URLs
+
+- [Hugging Face Models](https://huggingface.co/lawun330/myanmar-sign-language-recognition)
+- [Kaggle Datasets](https://www.kaggle.com/datasets/lawunnannda/msl4emergency-dataset-augmented-keypoints)
 
 ## References
 
