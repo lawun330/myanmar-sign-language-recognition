@@ -38,8 +38,6 @@ This project implements a MSL recognition system for emergency cases.
 1. **Exp-1** ([mslr_full_train_v1](notebooks/mslr_full_train_v1.ipynb)): Sayar's default configuration
 2. **Exp-2** ([mslr_5cv_v1](notebooks/mslr_5cv_v1.ipynb)): Use K-fold cross-validation (K=5)
 
-Summary: [presentation slides](presentation_slides.pdf)
-
 Results:
 
 | Eval on Validation Data | Eval on Test Data |
@@ -78,7 +76,10 @@ Results:
     ├── exp_stgcn
     ├── exp_cv_bilstm
     ├── exp_cv_transformer
-    └── exp_cv_stgcn
+    ├── exp_cv_stgcn
+    ├── exp_onnx_bilstm
+    ├── exp_onnx_transformer
+    └── exp_onnx_stgcn
 ```
 
 ## External URLs
